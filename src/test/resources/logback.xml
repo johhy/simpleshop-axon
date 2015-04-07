@@ -1,0 +1,53 @@
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%30.20logger - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<logger name="org.springframework" level="OFF">
+	</logger>
+	<logger name="org.axonframework" level="OFF">
+	</logger>
+	
+	<logger name="org.hibernate.validator" level="OFF">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCell" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellLogicaImpl" level="OFF">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.query.productcell.ProductCellEventListener" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.Customer" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.CustomerLogicaImpl" level="OFF">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.CustomerInfo" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.Order" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.OrderLogicaImpl" level="OFF">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.query.customer.CustomerEventListener" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.core.service.transfer.ProductCellCustomerTransferServiceImpl" level="DEBUG">
+	</logger>
+	
+	<logger name="com.github.johhy.simpleshopaxon.test" level="ALL">
+	</logger>
+	
+	<root level="OFF">
+		<appender-ref ref="STDOUT"/>
+	</root>
+	
+</configuration>

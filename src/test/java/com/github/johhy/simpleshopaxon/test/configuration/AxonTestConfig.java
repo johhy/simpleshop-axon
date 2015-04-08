@@ -1,7 +1,11 @@
 package com.github.johhy.simpleshopaxon.test.configuration;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.commandhandling.CommandHandlerInterceptor;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
 import org.axonframework.commandhandling.gateway.CommandGatewayFactoryBean;
@@ -26,8 +30,7 @@ import com.github.johhy.simpleshopaxon.core.domain.customer.CustomerAggregateFac
 import com.github.johhy.simpleshopaxon.core.domain.customer.CustomerLogicaImpl;
 import com.github.johhy.simpleshopaxon.core.domain.customer.OrderLogicaImpl;
 import com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCell;
-import com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellAggregateFactory;
-import com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellLogicaImpl;
+import com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellCommandsValidator;
 
 
 @Configuration
@@ -67,8 +70,18 @@ public class AxonTestConfig {
 	   
 	 @Bean
 	 public CommandBus commandBus() {
-		 return new SimpleCommandBus();
+		 SimpleCommandBus scb = new SimpleCommandBus();
+		 List<CommandHandlerInterceptor> list = 
+				 new ArrayList<CommandHandlerInterceptor>();
+		 list.add(productCellValidator());
+		 scb.setHandlerInterceptors(list);
+		 return scb;
 	 } 
+	 
+	 @Bean
+	 public ProductCellCommandsValidator productCellValidator() {
+		 return new ProductCellCommandsValidator(); 
+	 }
 	 
 	 @Bean
 	 public EventStore eventStore() {
@@ -96,15 +109,10 @@ public class AxonTestConfig {
 	 @Bean
 	 public Repository<ProductCell> productCellRepo() {
 		 EventSourcingRepository<ProductCell> repository = 
-			 new EventSourcingRepository<ProductCell>(productCellFactory(), eventStore());
+			 new EventSourcingRepository<ProductCell>(ProductCell.class, eventStore());
 		 repository.setEventBus(eventBus());
 		 return repository;
 	 } 
-	 
-	 @Bean
-	 public ProductCellAggregateFactory productCellFactory() {
-		 return new ProductCellAggregateFactory(ProductCellLogicaImpl.class);
-	 }
 	 
 	 @Bean
 	 public CustomerAggregateFactory customerFactory() {

@@ -2,7 +2,9 @@ package com.github.johhy.simpleshopaxon.core.domain.productcell;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Transient;
 
@@ -54,10 +56,17 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The logica of product cell. */
-	@Transient
-	private ProductCellLogica logica;
+	/** The quantity. */
+	private int quantity = 0;
 	
+	/** The price. */
+	private double price = 0;
+	
+	/** The reserved products. 
+	 * Key is code of product, value is quantity*/
+	Map<String, Integer> reservedProducts =	new HashMap<String, Integer>();
+	
+
 	/** The code of product. */
 	@AggregateIdentifier
 	private String codeOfProduct;
@@ -67,15 +76,7 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	 */
 	public ProductCell() {};
 	
-	/**
-	 * Instantiates a new product cell.
-	 *
-	 * @param logica the logica
-	 */
-	public ProductCell(ProductCellLogica logica) {
-		this.logica = logica;
-	}
-	
+
 	/**
 	 * Instantiates a new product cell.
 	 *
@@ -100,41 +101,31 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	 * Adds the amount product to product cell command.
 	 *
 	 * @param command the command
-	 * @return the product quantity changed in product cell event
+	 * @return the event for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
-	public ProductQuantityChangedInProductCellEvent 
-		addAmountProductToProductCellCommand(
+	public Object addAmountProductToProductCellCommand(
 			AddProductToProductCellCommand command) {
-		ProductQuantityChangedInProductCellEvent event =
-				new ProductQuantityChangedInProductCellEvent(command.getCodeOfProduct(),
-						logica.addAmountProductToProductCell(command.getQuantity()));
-		apply(event);
-		return event;
+		return applyAndLog(new ProductQuantityChangedInProductCellEvent(
+				command.getCodeOfProduct(),
+				quantity + command.getQuantity()));
 	}
 	
 	/**
 	 * Removes the amount product from product cell command.
 	 *
 	 * @param command the command
-	 * @return the product quantity changed in product cell event
-	 * @throws RemoveProductLessThanNeedException the remove product less than need exception
+	 * @return the event for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
-	public ProductQuantityChangedInProductCellEvent 
-		removeAmountProductFromProductCellCommand(
-			RemoveProductFromProductCellCommand command)
-			throws RemoveProductLessThanNeedException {
-		if(logica.isProductMoreThanNeed(command.getQuantity())) {
-			ProductQuantityChangedInProductCellEvent event = 
-					new ProductQuantityChangedInProductCellEvent(command.getCodeOfProduct(),
-							logica.removeAmountProductFromProductCell(command.getQuantity()));
-			apply(event);
-			return event;
-		} else throw new RemoveProductLessThanNeedException("Quantity req:" + command.getQuantity() +
-				" in product cell is:" + logica.getQuantity());
+	public Object removeAmountProductFromProductCellCommand(
+			RemoveProductFromProductCellCommand command) {
+			return applyAndLog(
+					new ProductQuantityChangedInProductCellEvent(
+							command.getCodeOfProduct(),
+							quantity - command.getQuantity()));
 	}
 	
 	/**
@@ -145,24 +136,22 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	@EventSourcingHandler
 	public void productQuantityChangedInProductCellEvent(
 			ProductQuantityChangedInProductCellEvent event) {
-		logica.setQuantity(event.getQuantity());
+		quantity = event.getQuantity();
 	}
 	
 	/**
 	 * Change price in product cell command.
 	 *
 	 * @param command the command
-	 * @return the price product changed event
+	 * @return the event for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
-	public PriceProductChangedEvent 
+	public Object
 		changePriceInProductCellCommand(ChangePriceOfProductCommand command) {
-		PriceProductChangedEvent event = 
-				new PriceProductChangedEvent(command.getCodeOfProduct(), 
-						logica.changePrice(command.getPrice()));
-		apply(event);
-		return event;
+		return applyAndLog(new PriceProductChangedEvent(
+				command.getCodeOfProduct(), 
+				command.getPrice()));
 	}
 	
 	/**
@@ -172,77 +161,53 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	 */
 	@EventSourcingHandler
 	public void productPriceChangedInProductCellEvent(PriceProductChangedEvent event) {
-		logica.setPrice(event.getPrice());
+		price = event.getPrice();
 	}
 	
 	/**
 	 * Give amount product from product cell for order command.
 	 *
 	 * @param command the command
-	 * @return the list
-	 * @throws ProductInProductCellLessThanNeedException the product in product cell less than need exception
+	 * @return the list of events for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
 	public List<Object> giveAmountProductFromProductCellForOrderCommand(
-			GiveAmountProductFromProductCellForOrderCommand command)
-			throws ProductInProductCellLessThanNeedException {
-		if(logica.isProductMoreThanNeed(command.getAmount())) {
-			//remove from quantity
-			ProductQuantityChangedInProductCellEvent event1 = 
-					new ProductQuantityChangedInProductCellEvent(command.getCodeOfProduct(),
-							logica.removeAmountProductFromProductCell(command.getAmount()));
-			//add to reserved
-			ReservedProductChangedInProductCellEvent event2 =
-					new ReservedProductChangedInProductCellEvent(command.getCodeOfProduct(),
+			GiveAmountProductFromProductCellForOrderCommand command) {
+			return applyAndLogTwo(
+					new ProductQuantityChangedInProductCellEvent(
+							command.getCodeOfProduct(),
+							quantity - command.getAmount()),
+					new ReservedProductChangedInProductCellEvent(
+							command.getCodeOfProduct(),
 							command.getOrderId(), 
-								logica.addReservedProductForOrder(command.getOrderId(), 
-										command.getAmount()));
-			apply(event1);
-			apply(event2);
-			List<Object> eventsList = new ArrayList<Object>();
-			eventsList.add(event1);
-			eventsList.add(event2);
-			return eventsList;
-		} else throw new ProductInProductCellLessThanNeedException("");
+							addReservedProductForOrder(
+									command.getOrderId(), 
+									command.getAmount()))
+					);
 	}
 	
 	/**
 	 * Return amount product from order to product cell command.
 	 *
 	 * @param command the command
-	 * @return the list
-	 * @throws OrderNotFoundException the order not found exception
-	 * @throws ReservedProductInProductCellLessThanReturnedFromOrderException the reserved product in product cell less than returned from order exception
+	 * @return the list of events for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
 	public List<Object> returnAmountProductFromOrderToProductCellCommand(
-			ReturnAmountProductFromOrderToProductCellCommand command)
-			throws OrderNotFoundException,
-			ReservedProductInProductCellLessThanReturnedFromOrderException {
-		if(logica.isProductReservedForOrder(command.getOrderId())) {
-			if(logica.isAmountReservedProductMoreThanNeedToRemove(command.getOrderId(), 
-					command.getAmount())) {
-				//add to quantity
-				ProductQuantityChangedInProductCellEvent event1 =
-						new ProductQuantityChangedInProductCellEvent(command.getCodeOfProduct(),
-								logica.addAmountProductToProductCell(command.getAmount()));
-				//remove from reserved
-				ReservedProductChangedInProductCellEvent event2 =
-						new ReservedProductChangedInProductCellEvent(command.getCodeOfProduct(),
-								command.getOrderId(),
-								logica.removeAmountReservedProductForOrder(command.getOrderId(), 
-										command.getAmount()));
-				apply(event1);
-				apply(event2);
-				List<Object> eventsList = new ArrayList<Object>();
-				eventsList.add(event1);
-				eventsList.add(event2);
-				return eventsList;
-			} else throw new ReservedProductInProductCellLessThanReturnedFromOrderException("");
-		} else throw new OrderNotFoundException("");
-		
+			ReturnAmountProductFromOrderToProductCellCommand command) {
+	     return applyAndLogTwo(
+	    		 new ProductQuantityChangedInProductCellEvent(
+	    				 command.getCodeOfProduct(),
+	    				 quantity + command.getAmount()),
+	    		 new ReservedProductChangedInProductCellEvent(
+	    				 command.getCodeOfProduct(),
+						command.getOrderId(),
+						removeAmountReservedProductForOrder(
+								command.getOrderId(), 
+								command.getAmount()))
+	    		 );
 	}
 	
 	/**
@@ -253,27 +218,20 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	@EventSourcingHandler
 	public void reservedProductChangedInProductCellEvent(
 			ReservedProductChangedInProductCellEvent event) {
-		logica.reserveProductForOrder(event.getOrderId(), event.getAmount());
+		reservedProducts.put(event.getOrderId(), event.getAmount());
 	}
 
 	/**
 	 * Removes the product cell.
 	 *
 	 * @param command the command
-	 * @return the product cell removed event
-	 * @throws ReservedProductsExistsInProductCellException the reserved products exists in product cell exception
+	 * @return the event for debug
 	 */
 	@Loggable(Loggable.DEBUG)
 	@CommandHandler
-	public ProductCellRemovedEvent removeProductCell(RemoveProductCellCommand command)
-			throws ReservedProductsExistsInProductCellException {
-		if(!logica.isAnyReservedProductInProductCell()) {
-			ProductCellRemovedEvent event = 
-					new ProductCellRemovedEvent(command.getCodeOfProduct());
-			apply(event);
-			return event;
-		} else throw new ReservedProductsExistsInProductCellException("");
-		
+	public Object removeProductCell(RemoveProductCellCommand command) {
+			return applyAndLog(new ProductCellRemovedEvent(
+					command.getCodeOfProduct()));
 	}
 
 	/**
@@ -284,6 +242,77 @@ public class ProductCell extends AbstractAnnotatedAggregateRoot<String> {
 	@EventSourcingHandler
 	public void productCellRemovedEvent(ProductCellRemovedEvent event) {
 		markDeleted();
+	}
+	
+	/**
+	 * Adds the reserved product for order.
+	 *
+	 * @param orderId the order id
+	 * @param amountToAdd the amount to add
+	 * @return the amount reserved product for order after add
+	 */
+	@Loggable(Loggable.DEBUG)
+	private int addReservedProductForOrder(String orderId, int amountToAdd) {
+		int newAmount = 0;
+		if(reservedProducts.containsKey(orderId)) {
+			newAmount = reservedProducts.get(orderId) + amountToAdd;
+		} else {
+			newAmount = amountToAdd;
+		}
+		return newAmount;
+	}
+	
+	/**
+	 * Removes the amount reserved product for order.
+	 *
+	 * @param orderId the order id
+	 * @param amountToRemove the amount to remove
+	 * @return the amount reserved product for order after dec
+	 */
+	@Loggable(Loggable.DEBUG)
+	private int removeAmountReservedProductForOrder(String orderId, int amountToRemove) {
+		return reservedProducts.get(orderId) - amountToRemove;
+	}
+	
+	/**
+	 * Reserve product for order.
+	 *
+	 * @param orderId the order id
+	 * @param amountToReserve the amount to reserve
+	 */
+	@Loggable(Loggable.DEBUG)
+	private void reserveProductForOrder(String orderId, int amountToReserve) {
+		if(amountToReserve==0) {
+			reservedProducts.remove(orderId);
+		} else reservedProducts.put(orderId, amountToReserve);
+	}
+	
+	/**
+	 * Apply and log.
+	 *
+	 * @param event the event
+	 * @return the event
+	 */
+	private Object applyAndLog(Object event) {
+		apply(event);
+		return event;
+	}
+	
+	/**
+	 * Apply and log two.
+	 *
+	 * @param event1 the event1
+	 * @param event2 the event2
+	 * @return the list of events
+	 */
+	private List<Object> applyAndLogTwo(Object event1, Object event2) {
+		apply(event1);
+		apply(event2);
+		List<Object> eventsList = new ArrayList<Object>();
+		eventsList.add(event1);
+		eventsList.add(event2);
+		return eventsList;
+		
 	}
 
 	/* (non-Javadoc)

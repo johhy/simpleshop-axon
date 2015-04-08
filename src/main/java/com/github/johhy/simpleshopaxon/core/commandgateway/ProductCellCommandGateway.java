@@ -9,6 +9,8 @@ import com.github.johhy.simpleshopaxon.core.commands.productcell.RemoveProductCe
 import com.github.johhy.simpleshopaxon.core.commands.productcell.RemoveProductFromProductCellCommand;
 import com.github.johhy.simpleshopaxon.core.commands.productcell.ReturnAmountProductFromOrderToProductCellCommand;
 import com.github.johhy.simpleshopaxon.core.exceptions.customer.OrderNotFoundException;
+import com.github.johhy.simpleshopaxon.core.exceptions.productcell.ProductCellExistsException;
+import com.github.johhy.simpleshopaxon.core.exceptions.productcell.ProductCellNoFoundException;
 import com.github.johhy.simpleshopaxon.core.exceptions.productcell.ProductInProductCellLessThanNeedException;
 import com.github.johhy.simpleshopaxon.core.exceptions.productcell.RemoveProductLessThanNeedException;
 import com.github.johhy.simpleshopaxon.core.exceptions.productcell.ReservedProductInProductCellLessThanReturnedFromOrderException;
@@ -28,21 +30,24 @@ import com.github.johhy.simpleshopaxon.core.exceptions.productcell.ReservedProdu
  */
 public interface ProductCellCommandGateway {
 	
-	void createProductCell(CreateProductCellCommand command);
+	void createProductCell(CreateProductCellCommand command)
+		throws ProductCellExistsException;
 	
 	void addAmountProductToProductCell(AddProductToProductCellCommand command);
 
 	void removeAmountProductFromProductCell(RemoveProductFromProductCellCommand command) 
-		throws RemoveProductLessThanNeedException;
+		throws RemoveProductLessThanNeedException,ProductCellNoFoundException;
 	
 	void changePriceOfProductInProductCell(ChangePriceOfProductCommand command);
 	
 	void giveAmountProductFromProductCellForOrder(GiveAmountProductFromProductCellForOrderCommand command)
-		throws ProductInProductCellLessThanNeedException;
+		throws ProductInProductCellLessThanNeedException,ProductCellNoFoundException;
 	
 	void returnAmountProductFromOrderToProductCell(ReturnAmountProductFromOrderToProductCellCommand command)
-		throws OrderNotFoundException,ReservedProductInProductCellLessThanReturnedFromOrderException;
+		throws OrderNotFoundException,ReservedProductInProductCellLessThanReturnedFromOrderException,
+			ProductCellNoFoundException;
 	
 	void removeProductCell(RemoveProductCellCommand command)
-		throws ReservedProductsExistsInProductCellException;
+		throws ReservedProductsExistsInProductCellException, 
+			ProductCellNoFoundException;
 }

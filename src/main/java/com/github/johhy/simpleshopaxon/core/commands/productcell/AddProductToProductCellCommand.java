@@ -1,25 +1,17 @@
 package com.github.johhy.simpleshopaxon.core.commands.productcell;
 
-import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
-
 /**
  * @author johhy
  *
  */
-public class AddProductToProductCellCommand {
+public class AddProductToProductCellCommand extends AbstractProductCellCommand {
 	
-	@TargetAggregateIdentifier
-	private final String codeOfProduct;
+
 	private final int quantity;
 	
 	public AddProductToProductCellCommand(String codeOfProduct, int quantity) {
-		super();
-		this.codeOfProduct = codeOfProduct;
+		super(codeOfProduct);
 		this.quantity = quantity;
-	}
-
-	public String getCodeOfProduct() {
-		return codeOfProduct;
 	}
 
 	public int getQuantity() {
@@ -28,8 +20,10 @@ public class AddProductToProductCellCommand {
 
 	@Override
 	public String toString() {
-		return "AddProductToProductCellCommand [codeOfProduct=" + codeOfProduct
-				+ ", quantity=" + quantity + "]";
+		return "AddProductToProductCellCommand [quantity=" + quantity + ", codeOfProduct=" + getCodeOfProduct()
+				+ "]";
 	}
+
+
 	
 }

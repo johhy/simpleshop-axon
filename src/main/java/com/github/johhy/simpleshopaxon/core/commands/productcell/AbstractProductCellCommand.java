@@ -6,12 +6,11 @@ import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
  * @author johhy
  *
  */
-public class CreateProductCellCommand {
-	
+public class AbstractProductCellCommand {
 	@TargetAggregateIdentifier
 	private final String codeOfProduct;
 
-	public CreateProductCellCommand(String codeOfProduct) {
+	public AbstractProductCellCommand(String codeOfProduct) {
 		super();
 		this.codeOfProduct = codeOfProduct;
 	}
@@ -19,10 +18,5 @@ public class CreateProductCellCommand {
 	public String getCodeOfProduct() {
 		return codeOfProduct;
 	}
-
-	@Override
-	public String toString() {
-		return "CreateProductCellCommand [codeOfProduct=" + codeOfProduct + "]";
-	}
-
+	
 }

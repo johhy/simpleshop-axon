@@ -16,7 +16,7 @@
 	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCell" level="DEBUG">
 	</logger>
 	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellLogicaImpl" level="OFF">
+	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellCommandsValidator" level="DEBUG">
 	</logger>
 	
 	<logger name="com.github.johhy.simpleshopaxon.query.productcell.ProductCellEventListener" level="DEBUG">

@@ -136,7 +136,7 @@ public class CustomerCommandEventsTest extends AbstractSimpleShopAxonTest {
 						"codeOfProduct", 5, 10))
 			.when(new AddProductToOrderCommand("1", "noOrderExists", "codeOfProduct",
 						34, 12))
-			.expectException(OrderNotFoundException.class);
+			.expectException(IllegalStateException.class);
 	}
 	
 	@Test
@@ -167,7 +167,7 @@ public class CustomerCommandEventsTest extends AbstractSimpleShopAxonTest {
 				new ProductAddedToOrderEvent("1", "order", 
 						"codeOfProduct", 5, 10))
 			.when(new RemoveProductFromOrderCommand("1", "noOrderExist", "codeOfProduct", 5))
-			.expectException(OrderNotFoundException.class);
+			.expectException(IllegalStateException.class);
 	}
 	
 	@Test

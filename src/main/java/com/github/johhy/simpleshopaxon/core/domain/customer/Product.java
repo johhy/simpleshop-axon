@@ -12,23 +12,15 @@ package com.github.johhy.simpleshopaxon.core.domain.customer;
  */
 public class Product {
 	
-	/** The code of product. */
-	private final String codeOfProduct;
-	
 	/** The quantity. */
 	private final int quantity;
 	
 	private final double price;
 	
-	public Product(String codeOfProduct, int quantity, double price) {
+	public Product(int quantity, double price) {
 		super();
-		this.codeOfProduct = codeOfProduct;
 		this.quantity = quantity;
 		this.price = price;
-	}
-	
-	public String getCodeOfProduct() {
-		return codeOfProduct;
 	}
 	
 	public int getQuantity() {
@@ -40,36 +32,9 @@ public class Product {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((codeOfProduct == null) ? 0 : codeOfProduct.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Product other = (Product) obj;
-		if (codeOfProduct == null) {
-			if (other.codeOfProduct != null)
-				return false;
-		} else if (!codeOfProduct.equals(other.codeOfProduct))
-			return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
-		return "Product [codeOfProduct=" + codeOfProduct + ", quantity="
-				+ quantity + ", price=" + price + "]";
+		return "Product [quantity=" + quantity + ", price=" + price + "]";
 	}
-	
-	
+
+
 }

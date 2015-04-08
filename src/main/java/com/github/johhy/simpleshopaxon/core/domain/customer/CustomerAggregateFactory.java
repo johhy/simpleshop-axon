@@ -51,7 +51,6 @@ public class CustomerAggregateFactory extends GenericAggregateFactory<Customer> 
 		}
 		Map<String, Order> orders = new HashMap<String,Order>();
 		Customer customer = new Customer(customerLogica, orderLogica);
-		customer.setOrders(orders);
 		return customer;
 	}
 

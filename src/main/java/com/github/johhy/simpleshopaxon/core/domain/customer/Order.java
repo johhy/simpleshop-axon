@@ -1,5 +1,9 @@
 package com.github.johhy.simpleshopaxon.core.domain.customer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.axonframework.commandhandling.annotation.CommandHandler;
 import org.axonframework.eventsourcing.annotation.AbstractAnnotatedEntity;
 import org.axonframework.eventsourcing.annotation.EventSourcingHandler;
 
@@ -27,19 +31,8 @@ public class Order extends AbstractAnnotatedEntity {
 	
 	/** The logica of order. */
 	private OrderLogica logica;
-	
-	/** The order id. */
-	private String orderId;
 		
-	/**
-	 * Gets the order id.
-	 *
-	 * @return the order id
-	 */
-	public String getOrderId() {
-		return orderId;
-	}
-
+	Map<String, Product> products = new HashMap<String, Product>();
 	/**
 	 * Instantiates a new order.
 	 *
@@ -49,15 +42,6 @@ public class Order extends AbstractAnnotatedEntity {
 		this.logica =logica;
 	}
 	
-	/**
-	 * Sets the order id.
-	 *
-	 * @param orderId the new order id
-	 */
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-
-	}
 	
 	/**
 	 * Adds the product to order command.
@@ -67,9 +51,10 @@ public class Order extends AbstractAnnotatedEntity {
 	 * @throws ProductExistsException the product exists exception
 	 */
 	@Loggable(Loggable.DEBUG)
+	@CommandHandler
 	public ProductAddedToOrderEvent addProductToOrderCommand(AddProductToOrderCommand command) 
 			throws ProductExistsException {
-		if(!logica.isProductExists(command.getCodeOfProduct())) {
+		if(!products.containsKey(command.getCodeOfProduct())) {
 		ProductAddedToOrderEvent event = new ProductAddedToOrderEvent(
 				command.getCustomerId(),
 				command.getOrderId(),
@@ -91,8 +76,8 @@ public class Order extends AbstractAnnotatedEntity {
 	 */
 	@EventSourcingHandler
 	public void productAddedEvent(ProductAddedToOrderEvent event) {
-		logica.createProductInOrder(event.getCodeOfProduct(),
-				event.getQuantity(), event.getPrice());
+		products.put(event.getCodeOfProduct(), 
+				new Product(event.getQuantity(), event.getPrice()));
 	}
 
 	/**
@@ -104,11 +89,11 @@ public class Order extends AbstractAnnotatedEntity {
 	 * @throws ProductNotFoundException the product not found exception
 	 */
 	@Loggable(Loggable.DEBUG)
+	@CommandHandler
 	public ProductRemovedFromOrderEvent removeProductFromOrderCommand(RemoveProductFromOrderCommand command) 
 				throws AmountProductToRemoveNotEqualInOrderException, ProductNotFoundException {
-		if(logica.isProductExists(command.getCodeOfProduct())) {
-			if(logica.isAmountProductToRemoveEqualInOrder(command.getCodeOfProduct(),
-					command.getAmountToRemove())) {
+		if(products.containsKey(command.getCodeOfProduct())) {
+			if(isAmountProductToRemoveEqualInOrder(command)) {
 				ProductRemovedFromOrderEvent event = 
 					new ProductRemovedFromOrderEvent(
 				command.getCustomerId(),
@@ -135,7 +120,12 @@ public class Order extends AbstractAnnotatedEntity {
 	 * @return true, if is order empty
 	 */
 	public boolean isOrderEmpty() {
-		return logica.isOrderEmpty();
+		return products.isEmpty();
+	}
+	
+	private boolean isAmountProductToRemoveEqualInOrder(RemoveProductFromOrderCommand command) {
+		return command.getAmountToRemove()==
+				products.get(command.getCodeOfProduct()).getQuantity();
 	}
 
 	/**
@@ -145,49 +135,8 @@ public class Order extends AbstractAnnotatedEntity {
 	 */
 	@EventSourcingHandler
 	public void productRemovedEvent(ProductRemovedFromOrderEvent event) {
-		logica.removeProductFromOrder(event.getCodeOfProduct());
+		products.remove(event.getCodeOfProduct());
 	}
-
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((orderId == null) ? 0 : orderId.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Order))
-			return false;
-		Order other = (Order) obj;
-		if (orderId == null) {
-			if (other.orderId != null)
-				return false;
-		} else if (!orderId.equals(other.orderId))
-			return false;
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Order [orderId=" + orderId + "]";
-	}
-
 
 	
 }

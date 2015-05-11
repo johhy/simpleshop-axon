@@ -7,43 +7,21 @@
 	
 	<logger name="org.springframework" level="OFF">
 	</logger>
+	
+	<logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory" level="OFF">
+	</logger>
+	
 	<logger name="org.axonframework" level="OFF">
+	</logger>
+	
+	<logger name="org.axonframework.unitofwork.NestableUnitOfWork" level="OFF">
 	</logger>
 	
 	<logger name="org.hibernate.validator" level="OFF">
 	</logger>
 	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCell" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.productcell.ProductCellCommandsValidator" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.query.productcell.ProductCellEventListener" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.Customer" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.CustomerLogicaImpl" level="OFF">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.CustomerInfo" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.Order" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.domain.customer.OrderLogicaImpl" level="OFF">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.query.customer.CustomerEventListener" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.core.service.transfer.ProductCellCustomerTransferServiceImpl" level="DEBUG">
-	</logger>
-	
-	<logger name="com.github.johhy.simpleshopaxon.test" level="ALL">
+
+	<logger name="com.github.johhy" level="DEBUG">
 	</logger>
 	
 	<root level="OFF">

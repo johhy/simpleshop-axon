@@ -107,9 +107,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final Integer quantity, final Double price) 
 			throws ApplicationException {
 		try {
-			if (pRepo.findByProductId(productId) != null) {
-				throw new Exception("Product:" + productId + " exists"); 
-			}
 			cg.sendAndWaitException(
 					new CreateProductCell(
 							new Product(productId, quantity, 
@@ -133,7 +130,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final Integer amountToAdd) 
 			throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
 			cg.sendAndWaitException(
 					new AddProductToProductCell(
 							new Product(productId, amountToAdd, 
@@ -159,7 +155,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final Integer amountToRemove) 
 			throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
 			cg.sendAndWaitException(
 					new RemoveProductFromProductCell(
 							new Product(productId, amountToRemove, 
@@ -185,7 +180,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final Integer newCapacity) 
 			throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
 			cg.sendAndWaitException(
 					new ChangeCapacityProductCell(
 							new Product(productId, 0, 
@@ -212,8 +206,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final String productId, final Integer amountToGive, 
 			final String customerId) throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
-			throwExceptionIfCustomerNoFound(customerId);
 			cg.sendAndWaitException(
 					new GiveProductToCustomer(
 							new Product(productId, amountToGive, 
@@ -239,8 +231,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final String productId, final Integer amountToRemove, 
 			final String customerId) throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
-			throwExceptionIfCustomerNoFound(customerId);
 			cg.sendAndWaitException(
 					new ReturnProductFromCustomer(
 							new Product(productId, amountToRemove, 
@@ -267,7 +257,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final Double newPrice) 
 			throws ApplicationException {
 		try {
-			throwExceptionIfProductNoFound(productId);
 			cg.sendAndWaitException(
 					new ChangePriceInProductCell(
 							new Product(productId, 0, new Price(newPrice))),
@@ -315,7 +304,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 	public void changeCustomerAddress(final String customerId, 
 		final String newAddress) throws ApplicationException {
 		try {
-			throwExceptionIfCustomerNoFound(customerId);
 			cg.sendAndWaitException(
 					new ChangeCustomerAddress(customerId, 
 						new Address(newAddress)),
@@ -341,7 +329,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 		final String shipTo) throws ApplicationException {
 		String orderId = orderIdGen.getOrderId();
 		try {
-			throwExceptionIfCustomerNoFound(customerId);
 			cg.sendAndWaitException(
 					new CreateOrderForCustomer(customerId, orderId, 
 							new Date(), new Address(shipTo)), aTIMEOUT, aUNIT);
@@ -369,7 +356,6 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 	public void changeOrderStatus(final String orderId, 
 		final Integer statusCode) throws ApplicationException {
 		try {
-			throwExceptionIfOrderNoFound(orderId);
 			cg.sendAndWaitException(
 					new ChangeOrderStatus(orderId, convertStatus(statusCode)),
 					aTIMEOUT, aUNIT);
@@ -410,45 +396,5 @@ public class FacadeCommandServiceImpl implements FacadeCommandService {
 				+ aCLOSED + "-CLOSED");
 	}
 	
-	/**
-	 * Throw exception if product no found.
-	 * Used for pre-validation before send command.
-	 *
-	 * @param productId the product id
-	 * @throws Exception the exception
-	 */
-	private void throwExceptionIfProductNoFound(final String productId) 
-			throws Exception {
-		if (pRepo.findByProductId(productId) == null) {
-		    throw new Exception("Product:" + productId + " no found");
-		}
-	}
-	
-	/**
-	 * Throw exception if customer no found.
-	 * Used for pre-validation before send command.
-	 * 
-	 * @param customerId the customer id
-	 * @throws Exception the exception
-	 */
-	private void throwExceptionIfCustomerNoFound(final String customerId) 
-			throws Exception {
-		if (cRepo.findByCustomerId(customerId).isEmpty()) {
-		    throw new Exception("Customer:" + customerId + " no found");
-		}
-	}
-	
-	/**
-	 * Throw exception if order no found.
-	 * Used for pre-validation before send command.
-	 *
-	 * @param orderId the order id
-	 * @throws Exception the exception
-	 */
-	private void throwExceptionIfOrderNoFound(final String orderId) 
-			throws Exception {
-		if (oRepo.findByOrderId(orderId).isEmpty()) {
-		    throw new Exception("Order:" + orderId + " no found");
-		}
-	}
+
 }

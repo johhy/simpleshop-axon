@@ -7,6 +7,8 @@ import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.github.johhy.simpleshopaxon.core.api.shared.History;
+import com.github.johhy.simpleshopaxon.core.infra.Find;
+import com.github.johhy.simpleshopaxon.query.repository.OrderTableRepository;
 
 /**
  * The Class ChangeOrderStatus.
@@ -17,6 +19,8 @@ public class ChangeOrderStatus {
 
 	/** The order id. */
 	@NotBlank
+	@Find(repository = OrderTableRepository.class,
+		methodName = "findByOrderId", mustExists = true)
 	@TargetAggregateIdentifier
 	private final String orderId;
 	

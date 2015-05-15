@@ -4,6 +4,8 @@ import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.github.johhy.simpleshopaxon.core.api.shared.Product;
+import com.github.johhy.simpleshopaxon.core.infra.Find;
+import com.github.johhy.simpleshopaxon.query.repository.ProductTableRepository;
 
 /**
  * The Class ProductCellCommand.
@@ -14,6 +16,8 @@ public abstract class AbstractProductCellCommand {
 
 	/** The product id. */
 	@NotBlank
+	@Find(repository = ProductTableRepository.class,
+		methodName = "findByProductId", mustExists=true)
 	@TargetAggregateIdentifier
 	private final String productId;
 

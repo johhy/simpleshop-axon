@@ -55,12 +55,11 @@ public class AxonConfig {
 	 *
 	 * @return the local validator factory bean
 	 */
-	@Bean
-	public LocalValidatorFactoryBean validator() {
-		return new LocalValidatorFactoryBean();
+    	@Bean
+	public LocalValidatorFactoryBean validator(){
+		 return new LocalValidatorFactoryBean();
 	}
-	
-	
+
 	/**
 	 * Command gateway.
 	 *
@@ -84,9 +83,9 @@ public class AxonConfig {
  	 */
  	@Bean
 	public CommandBus commandBus() {
-		 SimpleCommandBus cb = new SimpleCommandBus();
-		   cb.setDispatchInterceptors(dispatchInterceptors());
-		 return cb;
+ 	   SimpleCommandBus scb = new SimpleCommandBus();
+ 	   scb.setDispatchInterceptors(commandInterceptors());
+ 	   return scb;
 	 } 
 	 
 	 /**
@@ -94,10 +93,10 @@ public class AxonConfig {
  	 *
  	 * @return the list
  	 */
- 	private List<CommandDispatchInterceptor> dispatchInterceptors() {
+ 	private List<CommandDispatchInterceptor> commandInterceptors() {
 		 List<CommandDispatchInterceptor>  cdi =
 				 new ArrayList<CommandDispatchInterceptor>();
-		 cdi.add(new BeanValidationInterceptor());
+		 cdi.add(new BeanValidationInterceptor(validator()));
 		 return cdi;
 	 }
 	 

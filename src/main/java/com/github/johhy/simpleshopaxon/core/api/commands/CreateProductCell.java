@@ -1,31 +1,49 @@
 package com.github.johhy.simpleshopaxon.core.api.commands;
 
+import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
+import org.hibernate.validator.constraints.NotBlank;
+
 import com.github.johhy.simpleshopaxon.core.api.shared.Product;
+import com.github.johhy.simpleshopaxon.core.infra.Find;
+import com.github.johhy.simpleshopaxon.query.repository.ProductTableRepository;
 
 /**
  * The Class CreateProductCell.
  * 
  * @author johhy
  */
-public class CreateProductCell extends ProductChangeInProductCell {
+public class CreateProductCell {
 
+	/** The product id. */
+	@NotBlank
+	@Find(repository = ProductTableRepository.class,
+		methodName = "findByProductId", mustExists=false)
+	@TargetAggregateIdentifier
+	private final String productId;
+	
+	private final Product product;
 	/**
 	 * Instantiates a new creates the product cell.
 	 *
 	 * @param product the product
 	 */
 	public CreateProductCell(final Product product) {
-		super(product);
+		this.productId = product.getProductId();
+		this.product = product;
+	}
+	/**
+	 * @return the productId
+	 */
+	public String getProductId() {
+	    return productId;
+	}
+	/**
+	 * @return the product
+	 */
+	public Product getProduct() {
+	    return product;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.github.johhy.simpleshopaxon.core.api.commands
-	 * .ProductChangeInProductCell#toString()
-	 */
-	@Override
-	public final String toString() {
-		return "CreateProductCell [product=" + getProduct() + "]";
-	}
 
 
 }

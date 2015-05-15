@@ -5,14 +5,26 @@ import java.util.Date;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import com.github.johhy.simpleshopaxon.core.api.shared.Address;
+import com.github.johhy.simpleshopaxon.core.infra.Find;
+import com.github.johhy.simpleshopaxon.query.repository.CustomerTableRepository;
 
 /**
  * The Class CreateCustomer.
  * 
  * @author johhy
  */
-public class CreateCustomer extends CustomerCommand {
+public class CreateCustomer {
+    
+    	/** The customer id. */
+	@NotEmpty
+	@Find(repository = CustomerTableRepository.class,
+		methodName = "findByCustomerId", mustExists = false)
+	@TargetAggregateIdentifier
+	private final String customerId;
 
 	/** The address. */
 	@NotNull
@@ -32,11 +44,18 @@ public class CreateCustomer extends CustomerCommand {
 	 */
 	public CreateCustomer(final String customerId, final 
 		Address customerAddress, final Date customerCreatedDate) {
-		super(customerId);
+		this.customerId = customerId;
 		this.address = customerAddress;
 		this.created = customerCreatedDate;
 	}
 
+	/**
+	 * @return the customerId
+	 */
+	public String getCustomerId() {
+	    return customerId;
+	}
+	
 	/**
 	 * Gets the address.
 	 *
@@ -56,15 +75,16 @@ public class CreateCustomer extends CustomerCommand {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.johhy.simpleshopaxon.core.api.commands
-	 * .CustomerCommand#toString()
+	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public final String toString() {
-		return "CreateCustomer [address=" + address 
-			+ ", created=" + created + ", customerId=" + getCustomerId()
-				+ "]";
+	public String toString() {
+	    return "CreateCustomer [customerId=" + customerId 
+		    + ", address=" + address 
+		    + ", created=" + created + "]";
 	}
+
+
 
 	
 }
